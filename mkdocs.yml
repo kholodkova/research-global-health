@@ -44,6 +44,7 @@ nav:
   - Лабораторная №1: lab1_report.md
   - Лабораторная №2:
       - Ход работы: lab2/index.md
+      - Отчёт по требованиям: lab2/report.md
       - T4 — доставка и безопасность: lab2/t4.md
       - Публикация: lab2/deployment.md
       - P5 — версии результатов: lab2/p5/index.md

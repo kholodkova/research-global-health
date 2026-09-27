@@ -14,3 +14,7 @@ wheels/
 
 # Test coverage
 .coverage
+
+# Documentation build and cache
+site/
+.cache/

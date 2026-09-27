@@ -1,0 +1,59 @@
+site_name: Research Global Health
+site_description: Учебный Python-проект и отчёты по лабораторным работам
+site_url: https://kholodkova.github.io/research-global-health/
+repo_url: https://github.com/kholodkova/research-global-health
+edit_uri: ""
+
+theme:
+  name: material
+  language: ru
+  font: false
+  icon:
+    logo: material/chart-line
+  palette:
+    - scheme: default
+      primary: teal
+      accent: teal
+      toggle:
+        icon: material/weather-night
+        name: Включить тёмную тему
+    - scheme: slate
+      primary: teal
+      accent: teal
+      toggle:
+        icon: material/weather-sunny
+        name: Включить светлую тему
+  features:
+    - navigation.top
+    - navigation.footer
+    - search.highlight
+    - search.suggest
+    - content.code.copy
+
+extra_css:
+  - stylesheets/extra.css
+
+nav:
+  - Главная: index.md
+  - Лабораторная №1: lab1_report.md
+  - Лабораторная №2: lab2/index.md
+
+plugins:
+  - search:
+      lang: ru
+
+markdown_extensions:
+  - tables
+  - attr_list
+  - md_in_html
+  - pymdownx.superfences
+
+validation:
+  nav:
+    omitted_files: warn
+    not_found: warn
+    absolute_links: warn
+  links:
+    not_found: warn
+    anchors: warn
+    unrecognized_links: warn

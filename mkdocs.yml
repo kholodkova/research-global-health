@@ -40,6 +40,7 @@ extra:
 
 nav:
   - Главная: index.md
+  - Лицензии: licenses.md
   - Лабораторная №1: lab1_report.md
   - Лабораторная №2:
       - Ход работы: lab2/index.md

@@ -93,7 +93,7 @@ uv run pre-commit run --all-files
 
 В проекте используются открытые данные Всемирной организации здравоохранения (WHO) из набора **Global Health Estimates (GHE): Leading Causes of DALYs**.
 
-**Источник:**  
+**Источник:**
 [WHO — Global Health Estimates: Leading causes of DALYs](https://www.who.int/data/gho/data/themes/mortality-and-global-health-estimates/global-health-estimates-leading-causes-of-dalys)
 
 **Рекомендуемое цитирование источника:**

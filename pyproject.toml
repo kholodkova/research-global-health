@@ -31,7 +31,7 @@ dev = [
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-addopts = "-ra --strict-markers --cov=research_global_health --cov-report=term-missing"
+addopts = "-ra --strict-markers --cov=research_global_health --cov-report=term-missing --cov-fail-under=70"
 
 [tool.coverage.run]
 branch = true

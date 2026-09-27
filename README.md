@@ -255,3 +255,9 @@ research-global-health/
 **Рекомендуемое цитирование источника:**
 
 > Global Health Estimates 2021: Disease burden by Cause, Age, Sex, by Country and by Region, 2000–2021. Geneva: World Health Organization; 2024.
+
+## Публикация сайта
+
+Workflow, настройки аккаунтов и порядок выпуска описаны в
+[инструкции публикации](docs/lab2/deployment.md). Push в ветку только проверяет сайт;
+публикацию запускают согласованные теги `v1.0` и `v1.1`.

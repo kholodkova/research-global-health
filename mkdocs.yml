@@ -43,6 +43,7 @@ nav:
   - Лабораторная №1: lab1_report.md
   - Лабораторная №2:
       - Ход работы: lab2/index.md
+      - Публикация: lab2/deployment.md
       - P5 — версии результатов: lab2/p5/index.md
       - Результаты: lab2/p5/results.md
 

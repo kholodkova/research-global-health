@@ -1,16 +1,22 @@
 # Research Global Health
 
+![CI](https://github.com/kholodkova/research-global-health/actions/workflows/ci.yml/badge.svg)
+
 Учебный Python-проект для исследования и анализа данных в области глобального здравоохранения.
 
 В качестве источника данных используются открытые данные Всемирной организации здравоохранения (WHO) — Global Health Estimates о ведущих причинах потери лет здоровой жизни (DALYs).
 
+## Требования
+
+- Python 3.12 или выше
+- [uv](https://docs.astral.sh/uv/)
+
 ## Установка
 
-Для управления Python и зависимостями в проекте используется `uv`.
-
-После клонирования репозитория перейдите в папку проекта:
+Клонируйте репозиторий и перейдите в папку проекта:
 
 ```bash
+git clone https://github.com/kholodkova/research-global-health.git
 cd research-global-health
 ```
 
@@ -28,10 +34,26 @@ uv sync
 uv run rg version
 ```
 
+Ожидаемый вывод:
+
+```text
+research-global-health 0.1.0
+```
+
 Проверить текущую конфигурацию приложения:
 
 ```bash
 uv run rg check-config
+```
+
+Ожидаемый вывод с настройками по умолчанию:
+
+```text
+data_dir: data
+log_level: INFO
+request_timeout: 30.0
+max_concurrency: 8
+github_token_set: False
 ```
 
 Команда `check-config` показывает основные параметры конфигурации, но не выводит значение GitHub-токена.
@@ -40,29 +62,33 @@ uv run rg check-config
 
 Настройки приложения можно задавать с помощью переменных окружения с префиксом `RG_` или через файл `.env`.
 
-Доступные параметры:
+| Переменная | Описание | Значение по умолчанию |
+|---|---|---|
+| `RG_GITHUB_TOKEN` | GitHub-токен | Не задан |
+| `RG_DATA_DIR` | Директория для данных | `data` |
+| `RG_LOG_LEVEL` | Уровень логирования | `INFO` |
+| `RG_REQUEST_TIMEOUT` | Тайм-аут запросов в секундах | `30.0` |
+| `RG_MAX_CONCURRENCY` | Максимальное количество параллельных операций (минимум `1`) | `8` |
 
-- `RG_GITHUB_TOKEN` — GitHub-токен. По умолчанию не задан.
-- `RG_DATA_DIR` — директория для данных. По умолчанию `data`.
-- `RG_LOG_LEVEL` — уровень логирования. По умолчанию `INFO`.
-- `RG_REQUEST_TIMEOUT` — тайм-аут запросов в секундах. По умолчанию `30.0`.
-- `RG_MAX_CONCURRENCY` — максимальное количество параллельных операций. По умолчанию `8`, минимальное допустимое значение — `1`.
-
-Например:
+Пример переопределения настроек через переменные окружения:
 
 ```bash
 RG_LOG_LEVEL=DEBUG RG_MAX_CONCURRENCY=16 uv run rg check-config
 ```
 
-Секретные значения, такие как GitHub-токен, не следует добавлять в Git.
+Для локальной конфигурации можно создать `.env` на основе `.env.example`.
 
-## Тесты и проверка качества
+Секретные значения, такие как GitHub-токен, не следует добавлять в Git. Файл `.env` исключён из репозитория через `.gitignore`.
+
+## Разработка
 
 Запустить все тесты:
 
 ```bash
 uv run pytest
 ```
+
+Минимальный порог покрытия кода тестами — 70%.
 
 Проверить код с помощью Ruff:
 
@@ -76,7 +102,7 @@ uv run ruff check .
 uv run ruff format --check .
 ```
 
-Проверить типы с помощью mypy:
+Проверить статическую типизацию с помощью mypy:
 
 ```bash
 uv run mypy
@@ -88,6 +114,43 @@ uv run mypy
 uv run pre-commit run --all-files
 ```
 
+Установить pre-commit hook локально:
+
+```bash
+uv run pre-commit install
+```
+
+## Структура проекта
+
+```text
+research-global-health/
+├── .github/
+│   └── workflows/
+│       └── ci.yml              # GitHub Actions CI
+├── src/
+│   └── research_global_health/
+│       ├── api/                # Заготовка для API
+│       ├── models/             # Модели данных
+│       ├── pipelines/          # Пайплайны обработки данных
+│       ├── sources/            # Источники данных
+│       ├── storage/            # Работа с хранением данных
+│       ├── __init__.py
+│       ├── cli.py              # CLI приложения
+│       ├── config.py           # Конфигурация приложения
+│       ├── logging_setup.py    # Настройка логирования
+│       └── py.typed
+├── tests/
+│   ├── conftest.py             # Общие фикстуры pytest
+│   ├── test_cli.py             # Тесты CLI
+│   └── test_config.py          # Тесты конфигурации
+├── .env.example                # Пример переменных окружения
+├── .gitignore
+├── .pre-commit-config.yaml     # Настройки pre-commit
+├── .python-version             # Версия Python
+├── pyproject.toml              # Метаданные, зависимости и настройки инструментов
+├── README.md
+└── uv.lock                     # Зафиксированные версии зависимостей
+```
 
 ## Источник данных
 

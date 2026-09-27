@@ -1,0 +1,61 @@
+# P5 — версии результатов
+
+Практическое задание: опубликовать две версии результатов, добавить переключатель
+и алиас `latest`, настроить публикацию по Git-тегу и проверить русский поиск.
+
+**Сейчас подготовлены результаты для v1.0.** Версия ещё не опубликована;
+переключатель и автоматическая публикация по тегам будут настроены следующим этапом.
+
+[Посмотреть таблицу и график за 2000–2020 годы](results.md).
+
+## Что сравниваем
+
+Срез WHO GHE: Россия (`RUS`), оба пола (`Persons`), все возрасты (`All ages`),
+все причины (`All Causes`, код 0). Используются готовые оценки общего DALY,
+без суммирования вложенных категорий причин.
+
+- Для v1.0: 2000, 2010, 2015, 2019, 2020 годы.
+- Для v1.1: тот же расчёт с добавлением 2021 года.
+
+Значения DALY приведены в тысячах. Изменение относительно 2000 года рассчитано
+автором проекта. Эти абсолютные показатели зависят в том числе от численности
+и возрастного состава населения и сами по себе не объясняют причины изменений.
+
+## Как воспроизвести { #reproduce }
+
+Исходные XLSX не поставляются с проектом. Для самостоятельного пересчёта:
+
+1. Откройте [официальную страницу WHO GHE](https://www.who.int/data/gho/data/themes/mortality-and-global-health-estimates/global-health-estimates-leading-causes-of-dalys).
+2. В разделе **Download the data → BY COUNTRY → DALY estimates, 2000–2021**
+   скачайте файлы за 2000, 2010, 2015, 2019, 2020 и 2021 годы.
+3. Сохраните их в одной папке с исходными именами `ghe2021_daly_bycountry_<год>.xlsx`.
+4. Из корня клонированного проекта выполните команды, подставив свой путь:
+
+```bash
+uv sync --group analysis --group docs --locked
+uv run --group analysis python -m research_global_health.pipelines.daly --source-dir "/path/to/WHO"
+uv run --group analysis python -m research_global_health.pipelines.daly_report
+```
+
+Локальная таблица и график появятся в `data/local/report-2020/`. Для варианта с
+2021 годом добавьте `--through-year 2021` к последней команде.
+Каталог `data/local/` исключён из Git.
+
+На сайте хранится подготовленный снимок результатов. Просмотр и сборка сайта
+не требуют скачивания XLSX. Для обновления снимка после проверки расчёта:
+
+```bash
+uv run --group analysis python -m research_global_health.pipelines.daly_report --output-dir docs/lab2/p5
+uv run --group docs mkdocs build --strict
+```
+
+## Источник и условия использования
+
+Global Health Estimates 2021: Disease burden by Cause, Age, Sex, by Country and
+by Region, 2000–2021. Geneva: World Health Organization; 2024.
+
+Используются оценки WHO для Российской Федерации. Дата обращения к странице
+источника: 27 сентября 2026 года. Это модельные оценки, а не индивидуальные
+данные пациентов. Условия для данных указаны отдельно:
+[WHO Terms and Conditions](https://www.who.int/about/policies/publishing/data-policy/terms-and-conditions).
+Лицензия кода проекта на данные WHO не распространяется.

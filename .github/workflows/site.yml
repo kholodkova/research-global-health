@@ -3,7 +3,7 @@ name: Site
 on:
   push:
     branches: ['**']
-    tags: [v1.0, v1.1]
+    tags: [v1.0, v1.1, v1.2]
   pull_request:
 
 permissions:

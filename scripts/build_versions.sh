@@ -11,7 +11,7 @@ trap 'rm -rf "$preview"' EXIT
 export GIT_AUTHOR_NAME='Site builder' GIT_COMMITTER_NAME='Site builder'
 export GIT_AUTHOR_EMAIL='site@example.invalid' GIT_COMMITTER_EMAIL='site@example.invalid'
 git -C "$preview" init -q -b source
-for version in v1.0 v1.1; do
+for version in v1.0 v1.1 v1.2; do
   if ! git rev-parse --verify "refs/tags/$version" >/dev/null 2>&1; then
     continue
   fi

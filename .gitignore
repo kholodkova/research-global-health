@@ -14,3 +14,10 @@ wheels/
 
 # Test coverage
 .coverage
+
+# Documentation build and cache
+site/
+.cache/
+
+# Local WHO source data and extracted results (not for publication)
+/data/local/

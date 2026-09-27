@@ -1,0 +1,124 @@
+name: Site
+
+on:
+  push:
+    branches: ['**']
+    tags: [v1.0, v1.1]
+  pull_request:
+
+permissions:
+  contents: read
+
+# Serialize releases so two runs cannot overwrite one another's deployments.
+concurrency:
+  group: site-${{ startsWith(github.ref, 'refs/tags/') && 'release' || github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: astral-sh/setup-uv@v6
+        with:
+          version: '0.12.19'
+          enable-cache: true
+      - run: uv sync --locked --group docs
+      # Run quality checks in this workflow too: deploy must depend on them.
+      - run: |
+          uv run ruff check .
+          uv run ruff format --check .
+          uv run mypy
+          uv run pytest
+          uv run --group docs mkdocs build --strict
+      - name: Build both release trees
+        if: startsWith(github.ref, 'refs/tags/')
+        env:
+          RELEASE: ${{ github.ref_name }}
+        run: |
+          git fetch origin master --tags
+          git merge-base --is-ancestor "${RELEASE}^{commit}" origin/master
+          uv run --group docs bash scripts/build_versions.sh site/github https://kholodkova.github.io/research-global-health/
+          uv run --group docs bash scripts/build_versions.sh site/sourcecraft https://kholodkova-research-global-health.sourcecraft.site/research-global-health/
+      - uses: actions/upload-pages-artifact@v3
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          path: site/github
+      - uses: actions/upload-artifact@v4
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          name: sourcecraft-site
+          path: site/sourcecraft
+          include-hidden-files: true
+
+  deploy-pages:
+    if: startsWith(github.ref, 'refs/tags/')
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/deploy-pages@v4
+        id: deploy
+      - name: Verify published release
+        env:
+          RELEASE: ${{ github.ref_name }}
+        run: bash scripts/healthcheck.sh https://kholodkova.github.io/research-global-health/ "$RELEASE" "$(git rev-parse HEAD)"
+
+  deploy-sourcecraft:
+    if: startsWith(github.ref, 'refs/tags/')
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/download-artifact@v4
+        with:
+          name: sourcecraft-site
+          path: site-sourcecraft
+      - name: Deliver static files to SourceCraft
+        env:
+          SOURCECRAFT_TOKEN: ${{ secrets.SOURCECRAFT_TOKEN }}
+        run: |
+          set -euo pipefail
+          test -n "$SOURCECRAFT_TOKEN"
+          # Keep the credential out of remote URLs and command arguments.
+          cat > "$RUNNER_TEMP/sourcecraft-askpass" <<'SH'
+          #!/bin/sh
+          case "$1" in
+            *Username*) printf '%s\n' git ;;
+            *) printf '%s\n' "$SOURCECRAFT_TOKEN" ;;
+          esac
+          SH
+          chmod 700 "$RUNNER_TEMP/sourcecraft-askpass"
+          export GIT_ASKPASS="$RUNNER_TEMP/sourcecraft-askpass" GIT_TERMINAL_PROMPT=0
+          trap 'rm -f "$GIT_ASKPASS"' EXIT
+          git clone https://git.sourcecraft.dev/kholodkova-research-global-health/research-global-health.git "$RUNNER_TEMP/sourcecraft"
+          target="$RUNNER_TEMP/sourcecraft"
+          # Use the remote default branch, including its name on an empty repo.
+          rsync -a --delete --exclude=.git --exclude=.sourcecraft site-sourcecraft/ "$target/"
+          mkdir -p "$target/.sourcecraft"
+          printf 'site:\n  root: "."\n' > "$target/.sourcecraft/sites.yaml"
+          git -C "$target" config user.name github-actions
+          git -C "$target" config user.email github-actions@users.noreply.github.com
+          git -C "$target" add .
+          if ! git -C "$target" diff --cached --quiet; then
+            git -C "$target" commit -m "Publish site from $GITHUB_SHA"
+            git -C "$target" push origin HEAD
+          fi
+      - name: Verify published release
+        env:
+          RELEASE: ${{ github.ref_name }}
+        run: bash scripts/healthcheck.sh https://kholodkova-research-global-health.sourcecraft.site/research-global-health/ "$RELEASE" "$(git rev-parse HEAD)"

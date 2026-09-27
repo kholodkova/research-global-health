@@ -21,12 +21,23 @@ requires = ["uv_build>=0.12.19,<0.13.0"]
 build-backend = "uv_build"
 
 [dependency-groups]
+analysis = [
+    "matplotlib>=3.11.2",
+    "openpyxl>=3.1.5",
+]
 dev = [
+    {include-group = "analysis"},
     "mypy>=2.3.1",
     "pre-commit>=4.6.2",
     "pytest>=9.1.1",
     "pytest-cov>=7.1.0",
     "ruff>=0.16.9",
+    "types-openpyxl>=3.1.5.20260827",
+]
+docs = [
+    "mike>=2.2.0",
+    "mkdocs>=1.6,<2",
+    "mkdocs-material>=9.7.7",
 ]
 
 [tool.pytest.ini_options]
